@@ -1,4 +1,4 @@
-function [RG_Norm, Y_Norm, RG_Ano, Y_Ano, Rayleigh_Range, loss] = anomaloscope(normal_L, normal_M, anomalous_L, anomalous_M)
+function [RG_Match, Y_Match, Rayleigh_Range, loss] = anomaloscope(normal_L, normal_M, anomalous_L, anomalous_M)
 
 % Import spectral power data for anomaloscope primaries
 
@@ -6,9 +6,9 @@ Py = readmatrix('Nagel.xlsx', 'Range', 'C12:C312')';
 Pg = readmatrix('Nagel.xlsx', 'Range', 'D12:D312')';
 Pr = readmatrix('Nagel.xlsx', 'Range', 'B12:B312')';
 
-Py=Py.*100;
-Pg=Pg.*100;
-Pr=Pr.*100;
+Py=Py.*1000;
+Pg=Pg.*1000;
+Pr=Pr.*1000;
 
 %Calculate cone responses and yellow setting for color normal
 
@@ -53,11 +53,11 @@ Y_RM = (Er_M*90)/Ey_M;
 %Plot Linear Response of Each Cone as R/R+G Value
 
 Y_L=zeros(1,74);
-Y_M=zeros(1,74);
+Y_Match=zeros(1,74);
 
 for x=0:73
     Y_L(x+1)=(Y_RL*(x/73))+(Y_GL*(1-(x/73)));
-    Y_M(x+1)=(Y_RM*(x/73))+(Y_GM*(1-(x/73)));
+    Y_Match(x+1)=(Y_RM*(x/73))+(Y_GM*(1-(x/73)));
 end
 
 %Calculate Rayleigh Match for both color normal and color anomalous
@@ -73,9 +73,9 @@ Y_Norm = Y_RL_Norm*(RG_Norm/73)+Y_GL_Norm*(1-(RG_Norm/73));
 x1=40;
 fun = @(x) ((Y_RL*(x/73))+(Y_GL*(1-(x/73))))-((Y_RM*(x/73))+(Y_GM*(1-(x/73))));
 
-RG_Ano=fzero(fun,x1, options);
+RG_Match=fzero(fun,x1, options);
 
-Y_Ano=Y_RL*(RG_Ano/73)+Y_GL*(1-(RG_Ano/73));
+Y_Match=Y_RL*(RG_Match/73)+Y_GL*(1-(RG_Match/73));
 
 %Calculate Match Range vs Color Normal Range
 
@@ -92,7 +92,7 @@ fun = @(x) ((Y_RL*(x/73))+(Y_GL*(1-(x/73))))/((Y_RM*(x/73))+(Y_GM*(1-(x/73)))) -
 
 RG_Threshold = fzero(fun,x2, options);
 
-Threshold=RG_Threshold-RG_Ano;
+Threshold=RG_Threshold-RG_Match;
 
 Rayleigh_Range=double(Threshold*2);
 
